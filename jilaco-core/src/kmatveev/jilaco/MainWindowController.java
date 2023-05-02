@@ -420,7 +420,7 @@ public class MainWindowController {
     private void appendToInteractionLog(Color color, String str) throws BadLocationException {
         MutableAttributeSet attr = new SimpleAttributeSet();
         attr.addAttribute(StyleConstants.Foreground, color);
-        interactionLog.getDocument().insertString(interactionLog.getDocument().getEndPosition().getOffset(), str, attr);
+        interactionLog.getDocument().insertString(interactionLog.getDocument().getEndPosition().getOffset() - 1, str, attr);
         interactionLog.setCaretPosition(interactionLog.getDocument().getLength());
     }
 
