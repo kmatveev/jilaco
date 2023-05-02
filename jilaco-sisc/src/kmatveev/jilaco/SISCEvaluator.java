@@ -6,13 +6,10 @@ import sisc.interpreter.AppContext;
 import sisc.interpreter.Context;
 import sisc.interpreter.Interpreter;
 import sisc.interpreter.SchemeException;
-import sisc.util.Util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.Properties;
 
 public class SISCEvaluator implements MainWindowController.Evaluator {
@@ -47,7 +44,7 @@ public class SISCEvaluator implements MainWindowController.Evaluator {
             output.reset();
             ctx = new AppContext(new MemorySymEnv());
 
-            URL heap = AppContext.findHeap(Util.makeURL("resources/sisc.shp"));
+            URL heap = AppContext.findHeap(SISCEvaluator.class.getResource("/sisc.shp"));
             ctx.addHeap(AppContext.openHeap(heap));
 
             interpreter = Context.enter(new DynamicEnvironment(ctx, System.in, output));

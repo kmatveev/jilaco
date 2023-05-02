@@ -1,6 +1,6 @@
 I've not provided any maven POM files, since I myself use Intellij IDEA to build this project.
-1. Create IDEA project for jilaco root dir, and add 3 Java modules: jilaco-core, jilaco-js and jilaco-sisc
-2. In project structure you should configure that jilaco-js and jilaco-sisc depend on jilaco-core
+1. Create IDEA project for jilaco root dir, and add 3 Java modules: jilaco-core, jilaco-js, jilaco-sisc, jilaco-jshell
+2. In project structure you should configure that jilaco-js, jilaco-jshell and jilaco-sisc depend on jilaco-core
 3. You'll be able to build and run JSEvaluator from jilaco-js
 4. To compile jilaco-sisc, you should download sisc distribution, then unpack it and place some files in lib and resources dir of jilaco-sisc.
    Then you should add all jar files from lib dir to dependencies. Also resources dir should be added to dependencies.
