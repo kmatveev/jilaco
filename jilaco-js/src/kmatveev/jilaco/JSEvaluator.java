@@ -4,6 +4,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.StringWriter;
+import java.util.Map;
 import java.util.Properties;
 
 public class JSEvaluator implements MainWindowController.Evaluator {
@@ -31,6 +32,11 @@ public class JSEvaluator implements MainWindowController.Evaluator {
         } catch (final ScriptException se) {
             return new String[]{null, se.getMessage(), outputWriter.toString(), errorWriter.toString()};
         }
+    }
+
+    @Override
+    public Map<String, Object> getBindings() {
+        return null;
     }
 
     public static void main(String[] args) throws Exception {

@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class JShellEvaluator implements MainWindowController.Evaluator {
@@ -41,6 +42,11 @@ public class JShellEvaluator implements MainWindowController.Evaluator {
     @Override
     public void reset() {
         jshell = JShell.builder().out(new PrintStream(output, true)).err(new PrintStream(err, true)).build();
+    }
+
+    @Override
+    public Map<String, Object> getBindings() {
+        return null;
     }
 
     public static void main(String[] args) throws Exception {

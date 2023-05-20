@@ -60,10 +60,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.CharBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.text.DefaultEditorKit.EndOfLineStringProperty;
@@ -101,10 +98,14 @@ public class MainWindowController {
 
     private final JPopupMenu editorPopupMenu = new JPopupMenu(), interactionLogPopupMenu = new JPopupMenu();
 
+    private final BindingsWindowController bindingsWindowController;
+
     public MainWindowController(Evaluator evaluator, String title, Properties config, AppListener listener) {
         this.listener = listener;
         this.mainWindow = new JFrame(title);
         this.evaluator = evaluator;
+
+        bindingsWindowController = new BindingsWindowController(this, evaluator);
 
         tabbedPane = new JTabbedPane();
         
@@ -290,6 +291,16 @@ public class MainWindowController {
         }));
         menuBar.add(commandsMenu);
 
+        JMenu exploreMenu = new JMenu("Explore");
+        exploreMenu.add(new JMenuItem(new AbstractAction("Bindings") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                bindingsWindowController.showBindingsWindow();
+            }
+        }));
+        menuBar.add(exploreMenu);
+
+
         JMenu toolsMenu = new JMenu("Tools");
         toolsMenu.add(new JMenuItem(new AbstractAction("Settings") {
             @Override
@@ -397,7 +408,7 @@ public class MainWindowController {
         return editor;
     }
 
-    private void evalAndPrint(String rowText, Evaluator evaluator) throws BadLocationException {
+    void evalAndPrint(String rowText, Evaluator evaluator) {
 
         appendToInteractionLog(echoColor, ">" + rowText + "\n");
         
@@ -417,17 +428,22 @@ public class MainWindowController {
         
     }
 
-    private void appendToInteractionLog(Color color, String str) throws BadLocationException {
-        MutableAttributeSet attr = new SimpleAttributeSet();
-        attr.addAttribute(StyleConstants.Foreground, color);
-        interactionLog.getDocument().insertString(interactionLog.getDocument().getEndPosition().getOffset() - 1, str, attr);
-        interactionLog.setCaretPosition(interactionLog.getDocument().getLength());
+    private void appendToInteractionLog(Color color, String str) {
+        try {
+            MutableAttributeSet attr = new SimpleAttributeSet();
+            attr.addAttribute(StyleConstants.Foreground, color);
+            interactionLog.getDocument().insertString(interactionLog.getDocument().getEndPosition().getOffset() - 1, str, attr);
+            interactionLog.setCaretPosition(interactionLog.getDocument().getLength());
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static interface Evaluator {
         // item 0 is result, item 1 is error, item 2 is output
         public String[] eval(String expression);
         public void reset();
+        public Map<String, Object> getBindings();
     }
 
     private class MyCutAction extends DefaultEditorKit.CutAction implements ChangeListener, CaretListener {
@@ -532,13 +548,8 @@ public class MainWindowController {
         @Override
         public void actionPerformed(ActionEvent e) {
             JTextPane editor = editors.get(tabbedPane.getSelectedIndex());
-
-            try {
-                String expression = editor.getSelectedText();
-                evalAndPrint(expression, evaluator);
-            } catch (BadLocationException ex) {
-                throw new RuntimeException(ex);
-            }
+            String expression = editor.getSelectedText();
+            evalAndPrint(expression, evaluator);
         }
 
         @Override
