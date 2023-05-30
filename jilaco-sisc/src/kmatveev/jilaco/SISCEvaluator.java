@@ -2,15 +2,20 @@ package kmatveev.jilaco;
 
 import sisc.env.DynamicEnvironment;
 import sisc.env.MemorySymEnv;
+import sisc.env.SymbolicEnvironment;
 import sisc.interpreter.AppContext;
 import sisc.interpreter.Context;
 import sisc.interpreter.Interpreter;
 import sisc.interpreter.SchemeException;
+import sisc.util.ExpressionVisitee;
+import sisc.util.ExpressionVisitor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 public class SISCEvaluator implements MainWindowController.Evaluator {
 
@@ -51,6 +56,39 @@ public class SISCEvaluator implements MainWindowController.Evaluator {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Map<String, Object> getBindings() {
+        Map<String, Object> result = new TreeMap<String, Object>();
+        SymbolicEnvironment topLevelEnv = interpreter.dynenv.ctx.toplevel_env;
+        populateBindingsRecursively(topLevelEnv, result);
+        return result;
+    }
+
+    private static Map<String, Object> populateBindingsRecursively(SymbolicEnvironment symEnv, Map<String, Object> result) {
+        Map<String, Object> parentNode;
+        if (symEnv.getParent() != null) {
+            parentNode = populateBindingsRecursively(symEnv.getParent(), result);
+        } else {
+            parentNode = result;
+        }
+        Map<String, Object> thisNode = new TreeMap<String, Object>();
+        parentNode.put(symEnv.getName().toString(), thisNode);
+
+        symEnv.visit(new ExpressionVisitor() {
+            private Object name = null;
+            @Override
+            public boolean visit(ExpressionVisitee expressionVisitee) {
+                if (name == null) {
+                    name = expressionVisitee;
+                } else {
+                    thisNode.put(name.toString(), expressionVisitee);
+                    name = null;
+                }
+                return true;
+            }
+        });
+        return thisNode;
     }
 
     public static void main(String[] args) throws Exception {
